@@ -15,15 +15,20 @@ import java.util.List;
 @RequestMapping("/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+    private final MyMetricsService myMetricsService;
+    private final OrderIdGenerator idGenerator;
 
     @Autowired
-    private MyMetricsService myMetricsService;
+    public OrderController(OrderService orderService, MyMetricsService myMetricsService, OrderIdGenerator idGenerator) {
+        this.orderService = orderService;
+        this.myMetricsService = myMetricsService;
+        this.idGenerator = idGenerator;
+    }
 
     @PostMapping
     public ResponseEntity<String> createOrder(@RequestBody CreateOrder request) {
-        OrderDTO orderDTO = new OrderDTO(String.valueOf(System.currentTimeMillis()), request.getDescription());
+        OrderDTO orderDTO = new OrderDTO(idGenerator.generateId(), request.getDescription());
         orderService.saveOrder(orderDTO);
         myMetricsService.incrementMyMetric();
         return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully orderId = " + orderDTO.getId());

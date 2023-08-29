@@ -1,10 +1,10 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:15.4
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: jenny
-      POSTGRES_PASSWORD: jennyjenny
+      POSTGRES_USER: ${ORDER_API_DB_USER}
+      POSTGRES_PASSWORD: ${ORDER_API_DB_PASS}
     ports:
       - "5432:5432"
     volumes:
@@ -13,8 +13,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: myemail@example.com
-      PGADMIN_DEFAULT_PASSWORD: mysecretpassword
+      PGADMIN_DEFAULT_EMAIL: ${ORDER_API_PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${ORDER_API_PGADMIN_PASS}
     ports:
       - "5050:80"
     depends_on:
@@ -38,13 +38,16 @@ services:
     volumes:
       - ./grafana:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${ORDER_API_GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${ORDER_API_GRAFANA_PASS}
 
-  spring-app:
+  order-api:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - ORDER_API_DB_USER=${ORDER_API_DB_USER}
+      - ORDER_API_DB_PASS=${ORDER_API_DB_PASS}
     ports:
       - "8080:8080"
     depends_on:

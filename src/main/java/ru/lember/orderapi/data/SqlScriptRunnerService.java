@@ -15,24 +15,24 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class SqlScriptRunnerService {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-    @Autowired
-    private ResourceLoader resourceLoader;
+    private final JdbcTemplate jdbcTemplate;
+    private final ResourceLoader resourceLoader;
 
-    public void executeScript(String sqlScript) {
-        jdbcTemplate.execute(sqlScript);
-        log.info("SQL script executed successfully");
+    @Autowired
+    public SqlScriptRunnerService(JdbcTemplate jdbcTemplate, ResourceLoader resourceLoader) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.resourceLoader = resourceLoader;
     }
 
-    public void executeScriptFromResource(String resourcePath) {
-        Resource resource = resourceLoader.getResource("classpath:" + resourcePath);
+    public void executeScript() {
+        Resource resource = resourceLoader.getResource("classpath:" + "postgres-script.sql");
         String sqlScript = null;
         try {
             sqlScript = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);
+            jdbcTemplate.execute(sqlScript);
+            log.info("SQL script executed successfully");
         } catch (IOException e) {
-            log.error("Can't find SQL script classpath: " + resourcePath, e);
+            log.error("Can't find SQL script classpath: postgres-script.sql", e);
         }
-        executeScript(sqlScript);
     }
 }
